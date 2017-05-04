@@ -1,4 +1,8 @@
 -module(bits).
 -export([bits/1]).
 
-bits(N) when N > 0 -> N.
+bits(N) ->
+  BinList = binary_to_list(integer_to_binary(N, 2));
+  lists:foldr(fun(BinList, 0) ->
+                1
+              end, [], BinList).
