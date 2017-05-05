@@ -1,7 +1,7 @@
 -module(lists_james).
 -export([sum/1, sum_tail/1, mul/1, mul_tail/1, max_list/1, double_tail/1,
          double/1, evens/1, evens_tail/1, nub/1, bun/1, palindrom/1, palin/1,
-         nopunct/1,
+         nopunct/1, nocaps/1,
          sum_tail/2, mul_tail/2, max_list/2, double_tail/2, evens_tail/2,
          take/2, removeAll/2]).
 
@@ -27,7 +27,7 @@ nopunct([X|Xs]) ->
     false -> [X | nopunct(Xs)]
   end.
 
-punctuation() -> ".,\ ;:\t\n'".
+punctuation() -> ".,-;:\t\n'".
 
 % Check if a list is a literal palindrome.
 palin(Xs) -> Xs == reverse(Xs).
