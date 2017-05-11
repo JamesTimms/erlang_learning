@@ -1,7 +1,8 @@
 -module(index).
 -export([get_gettysburg_address/0, analyse_text/0,
          get_file_contents/1, show_file_contents/1, normalize/1,
-         removeShortWords/1, nub/1]).
+         remove_short_words/1, nub/1,
+         nub/2]).
 
 % Used to read a file into a list of lines.
 % Example files available in:
@@ -9,41 +10,24 @@
 %   dickens-christmas.txt  (long)
 get_gettysburg_address() -> get_file_contents("gettysburg-address.txt").
 
-analyse_text() -> removeShortWords(normalize(get_gettysburg_address())).
+analyse_text() -> remove_short_words(normalize(get_gettysburg_address())).
 
-% return list of words with analysis.
-% [{ "foo" , [{3,5},{7,7},{11,13}] }, { "bar" , [{1,2},{4,6},{7,7}] }]
-% means that the word "foo" occurs on lines 3, 4, 5, 7, 11, 12 and 13 in the
-% file.
-% analyse([]) -> [];
-% analyse([Line|Text]) -> searchLines([Line|Text]).
-
-% searchLines([]) -> [];
-% searchLines([Line|Text]) -> [searchWords(Line)|searchLines(Text)].
-
-% searchWords([]) -> [];
-% searchWords([Word|Line]) ->
-%   [SearchWord = search()].
-
-% aasdasdasdasdsa() ->
-%   case isUnique(Word, ListOfUniqueWords) of
-%   true-> [Word|searchWords(line)];
-%   false-> searchWords(line)
-% end.
 % Remove all duplicate elements. Keeps the first occurances of an element.
-nub([]) -> [];
-nub([[]|Text]) -> nub(Text);
-nub([[Word|_Line]|_Text] = All) ->
-  [{Word}|nub(removeAll(Word, All))].
+nub([[Word|_Line]|_Text]) -> nub([[Word|_Line]|_Text], 0).
+
+nub([], Count) -> [];
+nub([[]|Text], Count) -> nub(Text, Count + 1);
+nub([[Word|Line]|Text] = All, Count) ->
+  [{Word, [{Count}]}|nub([Line|Text], Count)].
 
 % Remove all of an element.
-removeAll(_X, []) -> [];
-removeAll(Word, [Line|Text]) ->
-  [rmFromLine(Word, Line)|removeAll(Word, Text)].
+remove_all(_X, []) -> [];
+remove_all(Word, [Line|Text]) ->
+  [rm_from_line(Word, Line)|remove_all(Word, Text)].
 
-rmFromLine(_Word, []) -> [];
-rmFromLine(Word, [Word|Line]) -> rmFromLine(Word, Line);
-rmFromLine(W, [Word|Line]) -> [Word|rmFromLine(W, Line)].
+rm_from_line(_Word, []) -> [];
+rm_from_line(Word, [Word|Line]) -> rm_from_line(Word, Line);
+rm_from_line(W, [Word|Line]) -> [Word|rm_from_line(W, Line)].
 
 % remove capitols and punctuation from argument Text.
 normalize([]) -> [];
@@ -51,20 +35,20 @@ normalize([Line|Text]) ->
   [lists_james:nocaps(lists_james:nopunct(Line)) | normalize(Text)].
 
 % Remove short words
-removeShortWords([]) -> [];
-removeShortWords([Line|Text]) ->
-  [reduceLines(string:tokens(Line, " "))|removeShortWords(Text)].
+remove_short_words([]) -> [];
+remove_short_words([Line|Text]) ->
+  [reduce_lines(string:tokens(Line, " "))|remove_short_words(Text)].
 
-reduceLines([]) -> [];
-reduceLines([Word|Line]) ->
-  case isShortWord(Word) of
-    true -> reduceLines(Line);
-    false -> [Word | reduceLines(Line)]
+reduce_lines([]) -> [];
+reduce_lines([Word|Line]) ->
+  case is_short_word(Word) of
+    true -> reduce_lines(Line);
+    false -> [Word | reduce_lines(Line)]
   end.
 
-isShortWord(Word) -> lists:member(Word, shortWords()).
+is_short_word(Word) -> lists:member(Word, short_words()).
 
-shortWords() ->
+short_words() ->
 ["is", "and", "i", "and", "our", "of", "for",
  "on", "a", "we", "that", "it", "to", "be"].
 
